@@ -1,0 +1,181 @@
+---
+import { getCollection } from 'astro:content';
+import SiteFooter from '../../../components/SiteFooter.astro';
+import SiteHeader from '../../../components/SiteHeader.astro';
+import Layout from '../../../layouts/Layout.astro';
+import { SITE_DESCRIPTION, SITE_TITLE, SITE_URL } from '../../../consts';
+import { getAllTags, getPublishedPosts } from '../../../utils/blog';
+
+const posts = getPublishedPosts(await getCollection('blog'));
+const tags = getAllTags(posts);
+const structuredData = {
+	'@context': 'https://schema.org',
+	'@type': 'CollectionPage',
+	name: `${SITE_TITLE} Tags`,
+	description: 'Browse blog posts by topic and tag.',
+	url: `${SITE_URL}/blog/tags/`,
+	isPartOf: {
+		'@type': 'Blog',
+		name: SITE_TITLE,
+		url: `${SITE_URL}/blog/`,
+		description: SITE_DESCRIPTION,
+	},
+};
+---
+
+<Layout
+	title={`Tags | ${SITE_TITLE}`}
+	description="Browse all blog tags and post categories."
+	keywords={['Astro blog tags', 'technical writing', 'frontend', 'product engineering']}
+	structuredData={structuredData}
+>
+	<div class="page-shell">
+		<SiteHeader active="blog" />
+
+		<main class="tags-page">
+			<section class="tags-hero panel">
+				<p class="eyebrow">Tag index</p>
+				<h1>用主題分類整理文章。</h1>
+				<p class="lead">
+					每個 tag 都有自己的靜態頁面，讓文章可以從主題角度被瀏覽，也能提供更穩定的內部連結結構。
+				</p>
+			</section>
+
+			<section class="tags-section">
+				<div class="section-heading">
+					<p class="section-heading__eyebrow">All tags</p>
+					<h2>目前可瀏覽的分類</h2>
+				</div>
+
+				<div class="tag-grid">
+					{
+						tags.map((tag) => (
+							<a class="tag-card panel" href={`/blog/tags/${tag.slug}/`}>
+								<span class="tag-card__count">{tag.count} posts</span>
+								<h3>{tag.name}</h3>
+								<p>查看所有和 {tag.name} 相關的文章。</p>
+							</a>
+						))
+					}
+				</div>
+			</section>
+		</main>
+
+		<SiteFooter />
+	</div>
+</Layout>
+
+<style>
+	.page-shell {
+		width: var(--content-width);
+		margin: 0 auto;
+		padding: 1rem 0 4rem;
+	}
+
+	.tags-page,
+	.tags-section,
+	.section-heading,
+	.tag-card {
+		display: grid;
+		gap: 1.25rem;
+	}
+
+	.panel {
+		background:
+			linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(245, 249, 246, 0.92)),
+			var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-xl);
+		box-shadow: var(--shadow);
+		backdrop-filter: blur(20px);
+	}
+
+	.tags-hero,
+	.tag-card {
+		padding: clamp(1.25rem, 2vw, 1.75rem);
+	}
+
+	.eyebrow,
+	.section-heading__eyebrow,
+	.tag-card__count {
+		margin: 0;
+		font-family: var(--font-mono);
+		font-size: 0.76rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: var(--accent-strong);
+	}
+
+	h1,
+	h2,
+	h3,
+	p {
+		margin: 0;
+	}
+
+	h1,
+	h2,
+	h3 {
+		color: var(--heading);
+	}
+
+	h1 {
+		font-size: clamp(2.5rem, 7vw, 4.75rem);
+		line-height: 0.96;
+		letter-spacing: -0.06em;
+		max-width: 12ch;
+	}
+
+	h2 {
+		font-size: clamp(1.8rem, 4vw, 2.6rem);
+		line-height: 1;
+		letter-spacing: -0.05em;
+	}
+
+	h3 {
+		font-size: 1.35rem;
+		line-height: 1.15;
+		letter-spacing: -0.04em;
+	}
+
+	.lead,
+	.tag-card p {
+		font-size: 1rem;
+		line-height: 1.75;
+		color: var(--text-muted);
+	}
+
+	.lead {
+		max-width: 42rem;
+	}
+
+	.tag-grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 1rem;
+	}
+
+	.tag-card {
+		text-decoration: none;
+	}
+
+	.tag-card:hover h3 {
+		color: var(--accent-strong);
+	}
+
+	@media (max-width: 1100px) {
+		.tag-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 720px) {
+		.page-shell {
+			padding-bottom: 3rem;
+		}
+
+		.tag-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

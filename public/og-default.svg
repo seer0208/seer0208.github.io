@@ -1,0 +1,20 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#EEF3EE"/>
+  <rect x="48" y="48" width="1104" height="534" rx="32" fill="#F8FBF8" stroke="#BFD2C4"/>
+  <rect x="96" y="96" width="432" height="438" rx="24" fill="#0B1B12"/>
+  <circle cx="144" cy="144" r="8" fill="#9ADDE5"/>
+  <circle cx="172" cy="144" r="8" fill="#9ADDE5" fill-opacity="0.65"/>
+  <circle cx="200" cy="144" r="8" fill="#9ADDE5" fill-opacity="0.35"/>
+  <text x="144" y="208" fill="#8CE0EB" font-family="'IBM Plex Mono', monospace" font-size="24" letter-spacing="3.84">$ astro blog --publish</text>
+  <text x="144" y="272" fill="#D7EFE3" font-family="'Space Grotesk', sans-serif" font-size="56" font-weight="700">Technical Notes</text>
+  <text x="144" y="338" fill="#D7EFE3" font-family="'Space Grotesk', sans-serif" font-size="56" font-weight="700">&amp; Product Systems</text>
+  <text x="144" y="414" fill="#A8C8B5" font-family="'Space Grotesk', sans-serif" font-size="28">Built with Astro, tags, RSS, and structured metadata.</text>
+  <rect x="596" y="126" width="456" height="88" rx="20" fill="#E4F3F5" stroke="#A7CDD4"/>
+  <text x="632" y="180" fill="#155E75" font-family="'IBM Plex Mono', monospace" font-size="28">/blog</text>
+  <rect x="596" y="238" width="456" height="88" rx="20" fill="#F1F6F2" stroke="#BFD2C4"/>
+  <text x="632" y="292" fill="#102418" font-family="'IBM Plex Mono', monospace" font-size="28">/blog/tags/astro</text>
+  <rect x="596" y="350" width="456" height="88" rx="20" fill="#F1F6F2" stroke="#BFD2C4"/>
+  <text x="632" y="404" fill="#102418" font-family="'IBM Plex Mono', monospace" font-size="28">/rss.xml</text>
+  <text x="596" y="504" fill="#496055" font-family="'Space Grotesk', sans-serif" font-size="34">Your Name</text>
+  <text x="596" y="544" fill="#496055" font-family="'Space Grotesk', sans-serif" font-size="24">Engineering-focused personal website template</text>
+</svg>

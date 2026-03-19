@@ -1,0 +1,111 @@
+---
+import { SITE_TITLE } from '../consts';
+
+interface Props {
+	active?: 'home' | 'blog';
+}
+
+const { active = 'home' } = Astro.props as Props;
+
+const links = [
+	{ href: '/', label: 'Home', key: 'home' },
+	{ href: '/blog', label: 'Blog', key: 'blog' },
+	{ href: '/blog/tags', label: 'Tags', key: 'blog' },
+	{ href: '/rss.xml', label: 'RSS', key: 'blog' },
+	{ href: '/#approach', label: 'Approach', key: 'approach' },
+	{ href: '/#contact', label: 'Contact', key: 'contact' },
+];
+---
+
+<header class="site-header">
+	<a class="site-header__brand" href="/">
+		<span class="site-header__mark">YN</span>
+		<span class="site-header__name">{SITE_TITLE}</span>
+	</a>
+
+	<nav class="site-header__nav" aria-label="Primary">
+		{
+			links.map((link) => (
+				<a class:list={['site-header__link', active === link.key && 'is-active']} href={link.href}>
+					{link.label}
+				</a>
+			))
+		}
+	</nav>
+</header>
+
+<style>
+	.site-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 1.25rem 0 2rem;
+	}
+
+	.site-header__brand {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.85rem;
+		text-decoration: none;
+	}
+
+	.site-header__mark {
+		display: grid;
+		place-items: center;
+		width: 2.75rem;
+		height: 2.75rem;
+		border-radius: 0.9rem;
+		background:
+			linear-gradient(135deg, rgba(14, 116, 144, 0.16), rgba(8, 21, 13, 0.06)),
+			var(--surface-strong);
+		border: 1px solid var(--border-strong);
+		box-shadow: var(--shadow);
+		font-family: var(--font-mono);
+		font-size: 0.95rem;
+		font-weight: 600;
+		letter-spacing: 0.08em;
+	}
+
+	.site-header__name,
+	.site-header__link {
+		font-family: var(--font-mono);
+	}
+
+	.site-header__name {
+		font-size: 0.94rem;
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+	}
+
+	.site-header__nav {
+		display: inline-flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 1.25rem;
+	}
+
+	.site-header__link {
+		font-size: 0.82rem;
+		letter-spacing: 0.08em;
+		text-decoration: none;
+		text-transform: uppercase;
+		color: var(--text-muted);
+	}
+
+	.site-header__link.is-active {
+		color: var(--heading);
+	}
+
+	@media (max-width: 720px) {
+		.site-header {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 1rem;
+		}
+
+		.site-header__nav {
+			gap: 0.8rem 1rem;
+		}
+	}
+</style>

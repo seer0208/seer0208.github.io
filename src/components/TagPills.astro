@@ -1,0 +1,60 @@
+---
+import { slugifyTag } from '../utils/blog';
+
+interface Props {
+	tags: string[];
+	hrefPrefix?: string;
+	ariaLabel?: string;
+}
+
+const {
+	tags,
+	hrefPrefix = '/blog/tags',
+	ariaLabel = 'Post tags',
+} = Astro.props as Props;
+---
+
+{
+	tags.length > 0 && (
+		<ul class="tag-list" aria-label={ariaLabel}>
+			{tags.map((tag) => (
+				<li>
+					<a href={`${hrefPrefix}/${slugifyTag(tag)}/`}>{tag}</a>
+				</li>
+			))}
+		</ul>
+	)
+}
+
+<style>
+	.tag-list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.65rem;
+		padding: 0;
+		margin: 0;
+		list-style: none;
+	}
+
+	.tag-list li {
+		margin: 0;
+	}
+
+	.tag-list a {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.45rem 0.7rem;
+		border-radius: 999px;
+		background: var(--accent-soft);
+		border: 1px solid rgba(14, 116, 144, 0.14);
+		font-family: var(--font-mono);
+		font-size: 0.78rem;
+		line-height: 1;
+		color: var(--accent-strong);
+		text-decoration: none;
+	}
+
+	.tag-list a:hover {
+		background: rgba(14, 116, 144, 0.18);
+	}
+</style>

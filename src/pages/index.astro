@@ -1,11 +1,677 @@
 ---
-import Welcome from '../components/Welcome.astro';
+import { getCollection } from 'astro:content';
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import TagPills from '../components/TagPills.astro';
+import { SITE_DESCRIPTION, SITE_TAGLINE, SITE_TITLE, SITE_URL } from '../consts';
 import Layout from '../layouts/Layout.astro';
+import { formatDate, getPublishedPosts } from '../utils/blog';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const profile = {
+	name: SITE_TITLE,
+	role: SITE_TAGLINE,
+	location: 'Based in Taipei, available for remote collaboration',
+	intro:
+		'我設計並實作給技術團隊使用的介面，重視結構清楚、資訊密度和可維護性。這個網站現在也已經接上 Astro blog 架構，之後可以直接寫文章發布。',
+};
+
+const principles = [
+	{
+		title: '內容與頁面分離',
+		body: '文章放在 content collections，頁面只負責顯示與路由，後續擴充分類、系列和 SEO 會更穩定。',
+	},
+	{
+		title: '先有框架再寫內容',
+		body: '先定 frontmatter、列表頁、單篇頁和首頁串接，之後新增文章就不需要再碰核心結構。',
+	},
+	{
+		title: '維持技術感',
+		body: '視覺保留工程導向的節奏與版面，讓首頁是個人介紹，blog 是長內容延伸，而不是兩套風格。',
+	},
+];
+
+const projects = [
+	{
+		name: 'Technical Writing',
+		type: 'Blog System',
+		summary:
+			'把 blog 建成可持續維護的內容系統，讓文章、標籤、時間和路由在 build 時自動串起來。',
+		stack: ['Astro', 'Markdown', 'Content Collections'],
+	},
+	{
+		name: 'Portfolio Surface',
+		type: 'Personal Site',
+		summary:
+			'首頁仍保留個人介紹與作品摘要，讀者可以先快速理解你是誰，再決定要不要深入讀文章。',
+		stack: ['Brand Direction', 'UI Structure', 'Responsive Layout'],
+	},
+	{
+		name: 'Publishing Flow',
+		type: 'Authoring Workflow',
+		summary:
+			'未來只要在 `src/content/blog/` 新增 Markdown，就能自動出現在首頁與 `/blog` 列表。',
+		stack: ['Author Experience', 'Static Build', 'Scalable Structure'],
+	},
+];
+
+const stack = [
+	'Astro',
+	'TypeScript',
+	'Markdown',
+	'Content Collections',
+	'Static Generation',
+	'Design Systems',
+	'Accessibility',
+	'Performance',
+];
+
+const latestPosts = getPublishedPosts(await getCollection('blog')).slice(0, 3);
+const structuredData = [
+	{
+		'@context': 'https://schema.org',
+		'@type': 'WebSite',
+		name: SITE_TITLE,
+		description: SITE_DESCRIPTION,
+		url: SITE_URL,
+	},
+	{
+		'@context': 'https://schema.org',
+		'@type': 'Person',
+		name: SITE_TITLE,
+		jobTitle: SITE_TAGLINE,
+		url: SITE_URL,
+		description: profile.intro,
+	},
+];
 ---
 
-<Layout>
-	<Welcome />
+<Layout
+	title={`${profile.name} | ${profile.role}`}
+	description={SITE_DESCRIPTION}
+	keywords={['Astro', 'technical blog', 'frontend systems', 'product engineering']}
+	structuredData={structuredData}
+>
+	<div class="page-shell">
+		<SiteHeader active="home" />
+
+		<main id="top" class="page">
+			<section class="hero panel">
+				<div class="hero__copy">
+					<p class="eyebrow">Technical personal site + blog</p>
+					<h1>{profile.name}</h1>
+					<p class="hero__role">{profile.role}</p>
+					<p class="hero__intro">{profile.intro}</p>
+
+					<div class="hero__actions">
+						<a class="button button--primary" href="/blog">Read the blog</a>
+						<a class="button button--secondary" href="/blog/tags">Browse tags</a>
+						<a class="button button--secondary" href="#contact">Make it yours</a>
+					</div>
+
+					<ul class="hero__facts" aria-label="Profile summary">
+						<li>{profile.location}</li>
+						<li>首頁放個人定位，blog 承接長篇技術內容</li>
+						<li>文章會由 Astro build 時自動生成對應頁面</li>
+					</ul>
+				</div>
+
+				<div class="hero__terminal" aria-label="Profile snapshot">
+					<div class="terminal__chrome">
+						<span></span>
+						<span></span>
+						<span></span>
+					</div>
+
+					<div class="terminal__body">
+						<p class="terminal__prompt">$ blog workflow --summary</p>
+						<ul class="terminal__list">
+							<li>在 `src/content/blog/` 新增 Markdown</li>
+							<li>Frontmatter 定義標題、描述、日期、tags</li>
+							<li>首頁、列表頁、單篇頁自動接上資料</li>
+						</ul>
+
+						<div class="signal-grid">
+							<article class="signal-card">
+								<span class="signal-card__label">Content source</span>
+								<strong>`src/content/blog/*.md`</strong>
+							</article>
+							<article class="signal-card">
+								<span class="signal-card__label">Listing page</span>
+								<strong>`/blog` 自動列出已發布文章</strong>
+							</article>
+							<article class="signal-card">
+								<span class="signal-card__label">Post route</span>
+								<strong>`/blog/[...slug]` 對應每篇文章</strong>
+							</article>
+							<article class="signal-card">
+								<span class="signal-card__label">Next step</span>
+								<strong>補上真實自介、文章、社群連結與站點資料</strong>
+							</article>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section class="section">
+				<div class="section-heading">
+					<p class="section-heading__eyebrow">Latest posts</p>
+					<h2>首頁直接帶出最新文章。</h2>
+					<p>
+						這樣訪客第一次進站就能同時看到你的人設與內容輸出，不需要額外找入口。
+					</p>
+				</div>
+
+				<div class="post-grid">
+					{
+						latestPosts.map((post) => (
+							<article class="post-card panel">
+								<p class="post-card__meta">
+									<span>{formatDate(post.data.pubDate)}</span>
+									<span>{post.data.tags.length} tags</span>
+								</p>
+								<h3>
+									<a href={`/blog/${post.id}/`}>{post.data.title}</a>
+								</h3>
+								<p>{post.data.description}</p>
+								<TagPills tags={post.data.tags} />
+							</article>
+						))
+					}
+				</div>
+			</section>
+
+			<section id="work" class="section">
+				<div class="section-heading">
+					<p class="section-heading__eyebrow">Architecture</p>
+					<h2>這次先建立的是 blog 的骨架，而不是只做外觀。</h2>
+					<p>
+						重點是讓未來每新增一篇文章，都能穩定進入列表頁、單篇頁和首頁，不需要重複改模板。
+					</p>
+				</div>
+
+				<div class="project-grid">
+					{projects.map((project) => (
+						<article class="project-card panel">
+							<div class="project-card__meta">
+								<span>{project.type}</span>
+								<span>Framework</span>
+							</div>
+							<h3>{project.name}</h3>
+							<p>{project.summary}</p>
+							<ul class="tag-list" aria-label={`${project.name} technologies`}>
+								{project.stack.map((item) => <li>{item}</li>)}
+							</ul>
+						</article>
+					))}
+				</div>
+			</section>
+
+			<section id="approach" class="section split-section">
+				<div class="section-heading">
+					<p class="section-heading__eyebrow">Approach</p>
+					<h2>先把內容系統想清楚，再擴充功能。</h2>
+					<p>
+						這個階段先處理內容模型、文章頁、列表頁和首頁入口。後面再加 tag 頁、系列頁、RSS
+						和 SEO 會比較自然。
+					</p>
+				</div>
+
+				<div class="principles">
+					{principles.map((principle, index) => (
+						<article class="principle-card panel">
+							<span class="principle-card__index">0{index + 1}</span>
+							<h3>{principle.title}</h3>
+							<p>{principle.body}</p>
+						</article>
+					))}
+				</div>
+			</section>
+
+			<section class="section stack-section">
+				<div class="stack-panel panel">
+					<div class="section-heading section-heading--compact">
+						<p class="section-heading__eyebrow">Core tools</p>
+						<h2>這個 blog 目前的基礎組成。</h2>
+					</div>
+
+					<ul class="tag-list tag-list--dense" aria-label="Skills and tools">
+						{stack.map((item) => <li>{item}</li>)}
+					</ul>
+				</div>
+
+				<div class="notes-panel panel">
+					<div class="section-heading section-heading--compact">
+						<p class="section-heading__eyebrow">What to do next</p>
+						<h2>你接下來只需要開始寫內容。</h2>
+					</div>
+
+					<ul class="notes-list">
+						<li>在 `src/content/blog/` 新增第二篇、第三篇文章測試列表排序。</li>
+						<li>把 `Your Name`、職稱、聯絡方式換成你的真實資料。</li>
+						<li>目前已經有 tag 分類頁、RSS 和 SEO / Open Graph，接下來可以補封面圖與 sitemap。</li>
+					</ul>
+				</div>
+			</section>
+
+			<section id="contact" class="section contact-section panel">
+				<div class="section-heading section-heading--compact">
+					<p class="section-heading__eyebrow">Contact</p>
+					<h2>保留一個直接的聯絡區塊。</h2>
+					<p>個人站首頁還是要能快速讓人找到你，不然內容做再多也不容易轉成實際連結。</p>
+				</div>
+
+				<div class="contact-grid">
+					<div>
+						<span class="contact-label">Email</span>
+						<p class="contact-value">your.name@example.com</p>
+					</div>
+					<div>
+						<span class="contact-label">GitHub</span>
+						<p class="contact-value">github.com/your-handle</p>
+					</div>
+					<div>
+						<span class="contact-label">LinkedIn</span>
+						<p class="contact-value">linkedin.com/in/your-handle</p>
+					</div>
+				</div>
+			</section>
+		</main>
+
+		<SiteFooter />
+	</div>
 </Layout>
+
+<style>
+	.page-shell {
+		width: var(--content-width);
+		margin: 0 auto;
+		padding: 1rem 0 4rem;
+	}
+
+	.page {
+		display: grid;
+		gap: 2rem;
+	}
+
+	.panel {
+		background:
+			linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(245, 249, 246, 0.92)),
+			var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-xl);
+		box-shadow: var(--shadow);
+		backdrop-filter: blur(20px);
+	}
+
+	.hero {
+		display: grid;
+		grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.9fr);
+		gap: 1.5rem;
+		padding: clamp(1.5rem, 3vw, 2rem);
+	}
+
+	.hero__copy,
+	.hero__terminal,
+	.post-card,
+	.project-card,
+	.principle-card,
+	.stack-panel,
+	.notes-panel,
+	.contact-section {
+		padding: clamp(1.25rem, 2vw, 1.75rem);
+	}
+
+	.eyebrow,
+	.section-heading__eyebrow,
+	.project-card__meta,
+	.post-card__meta,
+	.contact-label,
+	.terminal__prompt {
+		margin: 0 0 0.9rem;
+		font-size: 0.76rem;
+		font-family: var(--font-mono);
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: var(--accent-strong);
+	}
+
+	h1,
+	h2,
+	h3,
+	p,
+	ul {
+		margin: 0;
+	}
+
+	h1,
+	h2,
+	h3 {
+		color: var(--heading);
+	}
+
+	h1 {
+		font-family: var(--font-display);
+		font-size: clamp(3rem, 9vw, 5.6rem);
+		line-height: 0.95;
+		letter-spacing: -0.06em;
+		max-width: 10ch;
+	}
+
+	h2 {
+		font-size: clamp(1.8rem, 4vw, 3rem);
+		line-height: 1;
+		letter-spacing: -0.05em;
+		max-width: 15ch;
+	}
+
+	h3 {
+		font-size: 1.3rem;
+		line-height: 1.15;
+		letter-spacing: -0.04em;
+	}
+
+	.hero__role {
+		margin-top: 1rem;
+		font-size: 1.05rem;
+		font-weight: 700;
+		color: var(--text-muted);
+	}
+
+	.hero__intro,
+	.section-heading p,
+	.project-card p,
+	.post-card p,
+	.principle-card p,
+	.notes-list li {
+		font-size: 1rem;
+		line-height: 1.75;
+		color: var(--text-muted);
+	}
+
+	.hero__intro {
+		max-width: 36rem;
+		margin-top: 1.25rem;
+	}
+
+	.hero__actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.85rem;
+		margin-top: 1.75rem;
+	}
+
+	.button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 3rem;
+		padding: 0.75rem 1.1rem;
+		border-radius: 999px;
+		border: 1px solid var(--border-strong);
+		text-decoration: none;
+		transition:
+			transform 0.2s ease,
+			background 0.2s ease,
+			border-color 0.2s ease;
+	}
+
+	.button:hover {
+		transform: translateY(-1px);
+	}
+
+	.button--primary {
+		background: linear-gradient(135deg, #0f766e, #0e7490);
+		color: white;
+	}
+
+	.button--secondary {
+		background: rgba(255, 255, 255, 0.7);
+		color: var(--heading);
+	}
+
+	.hero__facts,
+	.terminal__list,
+	.notes-list {
+		padding-left: 1.1rem;
+	}
+
+	.hero__facts {
+		display: grid;
+		gap: 0.8rem;
+		margin-top: 1.5rem;
+		color: var(--text-muted);
+	}
+
+	.hero__facts li,
+	.terminal__list li,
+	.notes-list li {
+		line-height: 1.6;
+	}
+
+	.hero__terminal {
+		background:
+			linear-gradient(180deg, rgba(8, 21, 13, 0.96), rgba(13, 28, 19, 0.92)),
+			#07110b;
+		color: #d7efe3;
+		border-radius: calc(var(--radius-xl) - 0.35rem);
+		border: 1px solid rgba(148, 163, 184, 0.2);
+		box-shadow:
+			inset 0 1px 0 rgba(255, 255, 255, 0.06),
+			0 20px 60px rgba(7, 17, 11, 0.22);
+	}
+
+	.terminal__chrome {
+		display: flex;
+		gap: 0.45rem;
+		margin-bottom: 1.4rem;
+	}
+
+	.terminal__chrome span {
+		width: 0.7rem;
+		height: 0.7rem;
+		border-radius: 999px;
+		background: rgba(215, 239, 227, 0.32);
+	}
+
+	.terminal__body {
+		display: grid;
+		gap: 1.2rem;
+	}
+
+	.terminal__prompt {
+		color: #8ce0eb;
+	}
+
+	.terminal__list {
+		color: rgba(215, 239, 227, 0.82);
+	}
+
+	.signal-grid,
+	.post-grid,
+	.project-grid,
+	.principles,
+	.stack-section,
+	.contact-grid {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.signal-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.signal-card {
+		padding: 1rem;
+		border-radius: var(--radius-md);
+		background: rgba(255, 255, 255, 0.05);
+		border: 1px solid rgba(140, 224, 235, 0.14);
+	}
+
+	.signal-card strong {
+		display: block;
+		font-size: 0.95rem;
+		line-height: 1.5;
+	}
+
+	.signal-card__label,
+	.principle-card__index {
+		display: inline-block;
+		margin-bottom: 0.45rem;
+		font-family: var(--font-mono);
+		font-size: 0.72rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: #8ce0eb;
+	}
+
+	.section {
+		display: grid;
+		gap: 1.5rem;
+	}
+
+	.section-heading {
+		display: grid;
+		gap: 0.75rem;
+		max-width: 48rem;
+	}
+
+	.section-heading--compact h2 {
+		max-width: 18ch;
+		font-size: clamp(1.5rem, 3vw, 2.3rem);
+	}
+
+	.post-grid,
+	.project-grid {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.post-card,
+	.project-card,
+	.principle-card,
+	.stack-panel,
+	.notes-panel {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.post-card__meta,
+	.project-card__meta {
+		display: flex;
+		justify-content: space-between;
+		gap: 1rem;
+	}
+
+	.post-card a {
+		text-decoration: none;
+	}
+
+	.post-card a:hover {
+		color: var(--accent-strong);
+	}
+
+	.split-section {
+		grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+		align-items: start;
+	}
+
+	.principles {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.stack-section {
+		grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+	}
+
+	.tag-list--dense :global(a) {
+		background: rgba(255, 255, 255, 0.72);
+		color: var(--text);
+		border-color: var(--border);
+	}
+
+	.tag-list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.65rem;
+		padding: 0;
+		list-style: none;
+	}
+
+	.tag-list li {
+		padding: 0.45rem 0.7rem;
+		border-radius: 999px;
+		background: var(--accent-soft);
+		border: 1px solid rgba(14, 116, 144, 0.14);
+		font-family: var(--font-mono);
+		font-size: 0.78rem;
+		color: var(--accent-strong);
+	}
+
+	.notes-list {
+		display: grid;
+		gap: 0.8rem;
+	}
+
+	.contact-section {
+		display: grid;
+		gap: 1.5rem;
+	}
+
+	.contact-grid {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.contact-grid > div {
+		padding: 1rem 1.1rem;
+		border-radius: var(--radius-md);
+		background: rgba(255, 255, 255, 0.62);
+		border: 1px solid var(--border);
+	}
+
+	.contact-value {
+		font-size: 1rem;
+		line-height: 1.6;
+		color: var(--heading);
+	}
+
+	@media (max-width: 1100px) {
+		.post-grid,
+		.project-grid,
+		.principles,
+		.contact-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+
+		.split-section,
+		.stack-section,
+		.hero {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	@media (max-width: 720px) {
+		.page-shell {
+			padding-bottom: 3rem;
+		}
+
+		h1 {
+			font-size: clamp(2.4rem, 16vw, 4rem);
+		}
+
+		h2 {
+			max-width: none;
+		}
+
+		.signal-grid,
+		.post-grid,
+		.project-grid,
+		.principles,
+		.stack-section,
+		.contact-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.hero__facts {
+			padding-left: 1rem;
+		}
+	}
+</style>

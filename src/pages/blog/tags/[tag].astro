@@ -1,0 +1,217 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import SiteFooter from '../../../components/SiteFooter.astro';
+import SiteHeader from '../../../components/SiteHeader.astro';
+import TagPills from '../../../components/TagPills.astro';
+import Layout from '../../../layouts/Layout.astro';
+import { SITE_DESCRIPTION, SITE_TITLE, SITE_URL } from '../../../consts';
+import {
+	formatDate,
+	getAllTags,
+	getPostsByTag,
+	getPublishedPosts,
+} from '../../../utils/blog';
+
+export async function getStaticPaths() {
+	const posts = getPublishedPosts(await getCollection('blog'));
+	const tags = getAllTags(posts);
+
+	return tags.map((tag) => ({
+		params: { tag: tag.slug },
+		props: {
+			tag,
+			posts: getPostsByTag(posts, tag.slug),
+		},
+	}));
+}
+
+interface Props {
+	tag: {
+		name: string;
+		slug: string;
+		count: number;
+	};
+	posts: CollectionEntry<'blog'>[];
+}
+
+const { tag, posts } = Astro.props as Props;
+const structuredData = {
+	'@context': 'https://schema.org',
+	'@type': 'CollectionPage',
+	name: `${tag.name} articles`,
+	description: `Browse all posts tagged ${tag.name}.`,
+	url: `${SITE_URL}/blog/tags/${tag.slug}/`,
+	isPartOf: {
+		'@type': 'Blog',
+		name: SITE_TITLE,
+		url: `${SITE_URL}/blog/`,
+		description: SITE_DESCRIPTION,
+	},
+};
+---
+
+<Layout
+	title={`${tag.name} | Tags | ${SITE_TITLE}`}
+	description={`Browse all posts tagged ${tag.name}.`}
+	keywords={[tag.name, 'blog tag', 'Astro blog']}
+	structuredData={structuredData}
+>
+	<div class="page-shell">
+		<SiteHeader active="blog" />
+
+		<main class="tag-page">
+			<section class="tag-hero panel">
+				<p class="eyebrow">Tag page</p>
+				<h1>{tag.name}</h1>
+				<p class="lead">
+					這個分類目前有 {tag.count} 篇文章。你也可以回到 <a href="/blog/tags/">所有 tags</a>
+					查看其他主題。
+				</p>
+			</section>
+
+			<section class="post-section">
+				<div class="section-heading">
+					<p class="section-heading__eyebrow">Posts</p>
+					<h2>{tag.name} 相關文章</h2>
+				</div>
+
+				<div class="post-grid">
+					{
+						posts.map((post) => (
+							<article class="post-card panel">
+								<p class="post-card__meta">{formatDate(post.data.pubDate)}</p>
+								<h3>
+									<a href={`/blog/${post.id}/`}>{post.data.title}</a>
+								</h3>
+								<p>{post.data.description}</p>
+								<TagPills tags={post.data.tags} />
+							</article>
+						))
+					}
+				</div>
+			</section>
+		</main>
+
+		<SiteFooter />
+	</div>
+</Layout>
+
+<style>
+	.page-shell {
+		width: var(--content-width);
+		margin: 0 auto;
+		padding: 1rem 0 4rem;
+	}
+
+	.tag-page,
+	.post-section,
+	.section-heading,
+	.post-card {
+		display: grid;
+		gap: 1.25rem;
+	}
+
+	.panel {
+		background:
+			linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(245, 249, 246, 0.92)),
+			var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-xl);
+		box-shadow: var(--shadow);
+		backdrop-filter: blur(20px);
+	}
+
+	.tag-hero,
+	.post-card {
+		padding: clamp(1.25rem, 2vw, 1.75rem);
+	}
+
+	.eyebrow,
+	.section-heading__eyebrow,
+	.post-card__meta {
+		margin: 0;
+		font-family: var(--font-mono);
+		font-size: 0.76rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: var(--accent-strong);
+	}
+
+	h1,
+	h2,
+	h3,
+	p {
+		margin: 0;
+	}
+
+	h1,
+	h2,
+	h3 {
+		color: var(--heading);
+	}
+
+	h1 {
+		font-size: clamp(2.5rem, 7vw, 4.75rem);
+		line-height: 0.96;
+		letter-spacing: -0.06em;
+	}
+
+	h2 {
+		font-size: clamp(1.8rem, 4vw, 2.6rem);
+		line-height: 1;
+		letter-spacing: -0.05em;
+	}
+
+	h3 {
+		font-size: 1.35rem;
+		line-height: 1.15;
+		letter-spacing: -0.04em;
+	}
+
+	.lead,
+	.post-card p {
+		font-size: 1rem;
+		line-height: 1.75;
+		color: var(--text-muted);
+	}
+
+	.lead a,
+	.post-card a {
+		color: inherit;
+	}
+
+	.lead a:hover,
+	.post-card a:hover {
+		color: var(--accent-strong);
+	}
+
+	.post-grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 1rem;
+	}
+
+	.post-card {
+		gap: 0.9rem;
+	}
+
+	.post-card a {
+		text-decoration: none;
+	}
+
+	@media (max-width: 1100px) {
+		.post-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 720px) {
+		.page-shell {
+			padding-bottom: 3rem;
+		}
+
+		.post-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

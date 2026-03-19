@@ -1,0 +1,210 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import SiteFooter from '../../components/SiteFooter.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import TagPills from '../../components/TagPills.astro';
+import {
+	DEFAULT_OG_IMAGE,
+	SITE_AUTHOR,
+	SITE_TITLE,
+	SITE_URL,
+} from '../../consts';
+import Layout from '../../layouts/Layout.astro';
+import { formatDate, getPublishedPosts } from '../../utils/blog';
+
+export async function getStaticPaths() {
+	const posts = getPublishedPosts(await getCollection('blog'));
+
+	return posts.map((post) => ({
+		params: { slug: post.id },
+		props: { post },
+	}));
+}
+
+interface Props {
+	post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props as Props;
+const { Content } = await render(post);
+const postUrl = `${SITE_URL}/blog/${post.id}/`;
+const structuredData = {
+	'@context': 'https://schema.org',
+	'@type': 'BlogPosting',
+	headline: post.data.title,
+	description: post.data.description,
+	datePublished: post.data.pubDate.toISOString(),
+	dateModified: (post.data.updatedDate ?? post.data.pubDate).toISOString(),
+	author: {
+		'@type': 'Person',
+		name: SITE_AUTHOR,
+	},
+	publisher: {
+		'@type': 'Person',
+		name: SITE_AUTHOR,
+	},
+	url: postUrl,
+	mainEntityOfPage: postUrl,
+	image: `${SITE_URL}${DEFAULT_OG_IMAGE}`,
+	keywords: post.data.tags,
+};
+---
+
+<Layout
+	title={`${post.data.title} | ${SITE_TITLE}`}
+	description={post.data.description}
+	type="article"
+	publishedTime={post.data.pubDate}
+	modifiedTime={post.data.updatedDate ?? post.data.pubDate}
+	keywords={post.data.tags}
+	structuredData={structuredData}
+>
+	<div class="page-shell">
+		<SiteHeader active="blog" />
+
+		<main class="post-page">
+			<article class="post panel">
+				<header class="post__header">
+					<p class="eyebrow">Blog post</p>
+					<h1>{post.data.title}</h1>
+					<p class="post__description">{post.data.description}</p>
+
+					<div class="post__meta">
+						<span>{formatDate(post.data.pubDate)}</span>
+						{post.data.updatedDate && <span>Updated {formatDate(post.data.updatedDate)}</span>}
+					</div>
+
+					<TagPills tags={post.data.tags} />
+				</header>
+
+				<div class="post__content">
+					<Content />
+				</div>
+			</article>
+		</main>
+
+		<SiteFooter />
+	</div>
+</Layout>
+
+<style>
+	.page-shell {
+		width: min(860px, calc(100vw - 2rem));
+		margin: 0 auto;
+		padding: 1rem 0 4rem;
+	}
+
+	.post-page {
+		display: grid;
+	}
+
+	.panel {
+		background:
+			linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(245, 249, 246, 0.92)),
+			var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-xl);
+		box-shadow: var(--shadow);
+		backdrop-filter: blur(20px);
+	}
+
+	.post {
+		padding: clamp(1.5rem, 3vw, 2.5rem);
+	}
+
+	.post__header {
+		display: grid;
+		gap: 1rem;
+		padding-bottom: 2rem;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.eyebrow,
+	.post__meta {
+		font-family: var(--font-mono);
+		font-size: 0.78rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: var(--accent-strong);
+	}
+
+	.post__meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem;
+	}
+
+	h1,
+	p,
+	ul {
+		margin: 0;
+	}
+
+	h1 {
+		font-size: clamp(2.3rem, 6vw, 4rem);
+		line-height: 0.98;
+		letter-spacing: -0.06em;
+		color: var(--heading);
+	}
+
+	.post__description {
+		font-size: 1.05rem;
+		line-height: 1.8;
+		color: var(--text-muted);
+		max-width: 42rem;
+	}
+
+	.post__content {
+		padding-top: 2rem;
+		font-size: 1rem;
+		line-height: 1.9;
+		color: var(--text);
+	}
+
+	.post__content :global(h2),
+	.post__content :global(h3) {
+		margin: 2.25rem 0 0.8rem;
+		line-height: 1.15;
+		letter-spacing: -0.04em;
+		color: var(--heading);
+	}
+
+	.post__content :global(p),
+	.post__content :global(ol),
+	.post__content :global(ul),
+	.post__content :global(pre) {
+		margin: 1rem 0;
+	}
+
+	.post__content :global(a) {
+		color: var(--accent-strong);
+	}
+
+	.post__content :global(code) {
+		padding: 0.1rem 0.4rem;
+		border-radius: 0.45rem;
+		background: rgba(8, 21, 13, 0.08);
+		font-family: var(--font-mono);
+		font-size: 0.9em;
+	}
+
+	.post__content :global(pre) {
+		padding: 1rem;
+		border-radius: var(--radius-md);
+		background: #0b1b12;
+		color: #d7efe3;
+		overflow-x: auto;
+	}
+
+	.post__content :global(pre code) {
+		padding: 0;
+		background: transparent;
+		color: inherit;
+	}
+
+	@media (max-width: 720px) {
+		.page-shell {
+			padding-bottom: 3rem;
+		}
+	}
+</style>
